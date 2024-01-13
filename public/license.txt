@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dungeon - Low Poly Game Level Challenge
+* source:	https://sketchfab.com/3d-models/dungeon-low-poly-game-level-challenge-0fd0d477d7424e5d8915ce0c06a2920d
+* author:	Warkarma (https://sketchfab.com/warkarma)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dungeon - Low Poly Game Level Challenge" (https://sketchfab.com/3d-models/dungeon-low-poly-game-level-challenge-0fd0d477d7424e5d8915ce0c06a2920d) by Warkarma (https://sketchfab.com/warkarma) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
