@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry";
+// import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { GUI } from "lil-gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -13,7 +13,7 @@ import {
 } from "three-mesh-bvh";
 
 const params = {
-  firstPerson: false,
+  firstPerson: true,
   displayCollider: false,
 
   displayBVH: false,
@@ -33,10 +33,9 @@ let renderer,
   gui,
   stats,
   mixer,
-  movkey = false,
-  dwn = false;
+  movkey = false;
 
-let environment, collider, visualizer, player, controls;
+let environment, collider, visualizer, player, controls, capsuleInfo1;
 let playerIsOnGround = false;
 
 let p = [0, 0];
@@ -61,6 +60,7 @@ loader0.load("./character.glb", (gltf) => {
   player = gltf.scene;
   player.scale.set(0.03, 0.03, 0.03);
   // controls.target = player.position.clone().add(0,20,0);
+
   
   
 
@@ -84,15 +84,19 @@ loader0.load("./character.glb", (gltf) => {
   scene.add(player);
 
   reset();
-});
-let capsuleInfo1 = {
-  radius: 0.5,
-  segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -1.0, 0)),
-};
-// let radius = 0.5;
-// let segment = new THREE.Line3(new THREE.Vector3(),new THREE.Vector3(0,-1.0,0));
+  
+  player.capsuleInfo1 = {
+      radius: 0.5,
+      segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -1.0, 0)),
+    };
 
-render();
+});
+// let capsuleInfo1 = {
+//   radius: 0.5,
+//   segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -1.0, 0)),
+// };
+
+
 
 function init() {
   const bgColor = 0x263238 / 2;
@@ -154,9 +158,8 @@ function init() {
 
   const Light = new THREE.PointLight(0xff0000, 100);
   Light.rotation.y = 3;
-  // player.add(Light);
-  // scene.add(player);
-  // reset();
+  
+  
 
   // lil.gui
 
@@ -168,6 +171,7 @@ function init() {
         .normalize()
         .multiplyScalar(100)
         .add(controls.target);
+      // camera.position.set(10,10,-10)
     }
   });
 
@@ -220,7 +224,7 @@ function init() {
         break;
       case "Space":
         if (playerIsOnGround) {
-          playerVelocity.y = 10.0;
+          playerVelocity.y = 20.0;
           playerIsOnGround = false;
         }
 
@@ -228,9 +232,7 @@ function init() {
     }
 
     window.addEventListener("keyup", function (e) {
-      dwn = false;
       movkey = false;
-      p = [0, 0];
       mixer._actions[0].enabled = true;
       mixer._actions[1].enabled = false;
       switch (e.code) {
@@ -262,13 +264,19 @@ function loadColliderEnviroment() {
   dracoloader.setDecoderConfig({ type: "js" });
   loader.setDRACOLoader(dracoloader);
 
-  loader.load("/Virtual-city.glb", (res) => {
+
+
+
+  loader.load("/city_scene_tokyo.glb", (res) => {
     const gltfScene = res.scene;
 
     gltfScene.scale.setScalar(15);
-    gltfScene.position.set(-5.4, -1, 56.0);
+    gltfScene.position.set(-5.4, -0.5, 56.0);
+
     const box = new THREE.Box3();
     box.setFromObject(gltfScene);
+    const box1 = new THREE.BoxHelper(gltfScene,0xffffff);
+    scene.add(box1);
     gltfScene.updateMatrixWorld(true);
 
     environment = new THREE.Group();
@@ -302,58 +310,18 @@ function reset() {
   controls.update();
 }
 
-function animate() {
-  if (player) {
-    updateKey();
-    // player.position.x += p[0];
-    // player.position.z += p[1];
-  }
+// if(player){
+//   player.position.set(-8.03, 0, 56.08);
 
-  const clockDelta = clock.getDelta();
+// }
 
-  if (mixer) {
-    mixer.update(clockDelta);
-  }
-}
-
-function updateKey() {
-  if (!dwn) {
-    if (fwdPressed) {
-      console.log("w");
-      dwn = true;
-      player.rotation.y = (0 * Math.PI) / 180;
-      p = [0, 0.5];
-      movkey = true;
-    }
-    if (bkdPressed) {
-      console.log("s");
-      dwn = true;
-      player.rotation.y = (180 * Math.PI) / 180;
-      p = [0, -0.5];
-      movkey = true;
-    }
-    if (lftPressed) {
-      console.log("a");
-      dwn = true;
-      player.rotation.y = (90 * Math.PI) / 180;
-      p = [0.5, 0];
-      movkey = true;
-    }
-    if (rgtPressed) {
-      console.log("d");
-      dwn = true;
-      player.rotation.y = (-90 * Math.PI) / 180;
-      p = [-0.5, 0];
-      movkey = true;
-    }
-    if (movkey) {
-      mixer._actions[0].enabled = false;
-      mixer._actions[1].enabled = true;
-    }
-  }
-}
 
 function updatePlayer(delta) {
+
+  if (!player) {
+    // Player object not loaded yet, return or handle accordingly
+    return;
+  }
   if (playerIsOnGround) {
     playerVelocity.y = delta * params.gravity;
   } else {
@@ -367,31 +335,37 @@ function updatePlayer(delta) {
   if (fwdPressed) {
     tempVector.set(0, 0, -1).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    // player.position.addScaledVector(tempVector, params.playerSpeed * delta);
+    movkey = true
+
   }
 
   if (bkdPressed) {
     tempVector.set(0, 0, 1).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    // player.position.addScaledVector(tempVector, params.playerSpeed * delta);
+    movkey = true
   }
 
   if (lftPressed) {
     tempVector.set(-1, 0, 0).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    // player.position.addScaledVector(tempVector, params.playerSpeed * delta);
+    movkey = true
   }
 
   if (rgtPressed) {
     tempVector.set(1, 0, 0).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    // player.position.addScaledVector(tempVector, params.playerSpeed * delta);
+    movkey = true
+  }
+
+  if (movkey) {
+    mixer._actions[0].enabled = false;
+    mixer._actions[1].enabled = true;
   }
 
   player.updateMatrixWorld();
 
   // adjust player position based on collisions
-  const capsuleInfo = capsuleInfo1;
+  const capsuleInfo = player.capsuleInfo1;
   tempBox.makeEmpty();
   tempMat.copy(collider.matrixWorld).invert();
   tempSegment.copy(capsuleInfo.segment);
@@ -403,12 +377,15 @@ function updatePlayer(delta) {
   // get the axis aligned bounding box of the capsule
   tempBox.expandByPoint(tempSegment.start);
   tempBox.expandByPoint(tempSegment.end);
+  // const box2 = new THREE.BoxHelper(,0xffffff);
+  // scene.add(box2)
 
   tempBox.min.addScalar(-capsuleInfo.radius);
   tempBox.max.addScalar(capsuleInfo.radius);
 
   collider.geometry.boundsTree.shapecast({
     intersectsBounds: (box) => box.intersectsBox(tempBox),
+    
 
     intersectsTriangle: (tri) => {
       // check if the triangle is intersecting the capsule and adjust the
@@ -471,27 +448,44 @@ function updatePlayer(delta) {
   }
 }
 
+render();
+
 function render() {
   stats.update();
   requestAnimationFrame(render);
 
   const delta = Math.min(clock.getDelta(), 0.1);
   if (params.firstPerson) {
-    controls.maxPolarAngle = Math.PI;
-    controls.minDistance = 1e-4;
-    controls.maxDistance = 1e-4;
+    // controls.maxPolarAngle = Math.PI;
+
+    // controls.minDistance = 1e-4;
+    // controls.maxDistance = 2e-4;
+    
+    player.visible = false;
+    controls.minDistance = 1;
+    controls.maxDistance = 3;
+    
+
+
+
+    
   } else {
     controls.maxPolarAngle = Math.PI / 2;
     controls.minDistance = 1;
     controls.maxDistance = 20;
+    player.visible = true;
+
+
     
   }
+  if(player){
+      player.rotation.set(0,controls.getAzimuthalAngle()+ Math.PI,0);
 
+  }
 
   if (collider) {
     collider.visible = params.displayCollider;
     visualizer.visible = params.displayBVH;
-    // tempBox.visible = params.tempBoxAABB;
 
     const physicsSteps = params.physicsSteps;
 
@@ -500,7 +494,9 @@ function render() {
     }
   }
   controls.update();
-  animate();
+  if(mixer){
+    mixer.update(delta)
+  }
 
   // TODO: limit the camera movement based on the collider
   // raycast in direction of camera and move it if it's further than the closest point
