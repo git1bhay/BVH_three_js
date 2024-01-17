@@ -18,7 +18,7 @@ const params = {
   displayBVH: false,
   visualizeDepth: 10,
 
-  gravity: -30,
+  gravity: 0,
   playerSpeed: 10,
   physicsSteps: 5,
 
@@ -85,7 +85,7 @@ loader0.load("./character.glb", (gltf) => {
   reset();
   
   player.capsuleInfo1 = {
-      radius: 2.0,
+      radius: 0.5,
       segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -2.0, 0)),
     };
 
@@ -171,7 +171,7 @@ function init() {
         .multiplyScalar(100)
         .add(controls.target);
       // camera.position.set(10,10,-10)
-      player.capsuleInfo1.radius = 0.5;
+      // player.capsuleInfo1.radius = 0.5;
     }
   });
 
@@ -310,10 +310,10 @@ function reset() {
   controls.update();
 }
 
-// if(player){
-//   player.position.set(-8.03, 0, 56.08);
+if(player){
+  player.position.set(-8.03, 0, 56.08);
 
-// }
+}
 
 
 function updatePlayer(delta) {
@@ -325,7 +325,7 @@ function updatePlayer(delta) {
   if (playerIsOnGround) {
     playerVelocity.y = delta * params.gravity;
   } else {
-    playerVelocity.y += delta * params.gravity;
+    // playerVelocity.y += delta * params.gravity;
   }
 
   player.position.addScaledVector(playerVelocity, delta);
@@ -464,7 +464,7 @@ function render() {
     player.visible = false;
     // controls.minDistance = 1;
     // controls.maxDistance = 3;
-    player.capsuleInfo1.radius = 3.0;
+    // player.capsuleInfo1.radius = 3.0;
     
 
 
