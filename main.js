@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { GUI } from "lil-gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -38,7 +37,7 @@ let renderer,
 let environment, collider, visualizer, player, controls, capsuleInfo1;
 let playerIsOnGround = false;
 
-let p = [0, 0];
+
 
 let fwdPressed = false,
   bkdPressed = false,
@@ -86,8 +85,8 @@ loader0.load("./character.glb", (gltf) => {
   reset();
   
   player.capsuleInfo1 = {
-      radius: 0.5,
-      segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -1.0, 0)),
+      radius: 2.0,
+      segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -2.0, 0)),
     };
 
 });
@@ -172,6 +171,7 @@ function init() {
         .multiplyScalar(100)
         .add(controls.target);
       // camera.position.set(10,10,-10)
+      player.capsuleInfo1.radius = 0.5;
     }
   });
 
@@ -458,12 +458,13 @@ function render() {
   if (params.firstPerson) {
     // controls.maxPolarAngle = Math.PI;
 
-    // controls.minDistance = 1e-4;
-    // controls.maxDistance = 2e-4;
+    controls.minDistance = 1e-4;
+    controls.maxDistance = 2e-4;
     
     player.visible = false;
-    controls.minDistance = 1;
-    controls.maxDistance = 3;
+    // controls.minDistance = 1;
+    // controls.maxDistance = 3;
+    player.capsuleInfo1.radius = 3.0;
     
 
 
@@ -472,7 +473,7 @@ function render() {
   } else {
     controls.maxPolarAngle = Math.PI / 2;
     controls.minDistance = 1;
-    controls.maxDistance = 20;
+    controls.maxDistance = 10;
     player.visible = true;
 
 
