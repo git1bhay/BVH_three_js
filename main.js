@@ -12,13 +12,13 @@ import {
 } from "three-mesh-bvh";
 
 const params = {
-  firstPerson: true,
+  firstPerson: false,
   displayCollider: false,
 
   displayBVH: false,
   visualizeDepth: 10,
 
-  gravity: 0,
+  gravity: -30,
   playerSpeed: 10,
   physicsSteps: 5,
 
@@ -325,7 +325,7 @@ function updatePlayer(delta) {
   if (playerIsOnGround) {
     playerVelocity.y = delta * params.gravity;
   } else {
-    // playerVelocity.y += delta * params.gravity;
+    playerVelocity.y += delta * params.gravity;
   }
 
   player.position.addScaledVector(playerVelocity, delta);
@@ -458,12 +458,12 @@ function render() {
   if (params.firstPerson) {
     // controls.maxPolarAngle = Math.PI;
 
-    controls.minDistance = 1e-4;
-    controls.maxDistance = 2e-4;
+    // controls.minDistance = 2e-4;
+    // controls.maxDistance = 2e-4;
     
     player.visible = false;
-    // controls.minDistance = 1;
-    // controls.maxDistance = 3;
+    controls.minDistance = 1;
+    controls.maxDistance = 3;
     // player.capsuleInfo1.radius = 3.0;
     
 
