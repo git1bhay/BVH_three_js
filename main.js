@@ -18,7 +18,7 @@ const params = {
   displayBVH: false,
   visualizeDepth: 10,
 
-  gravity: -30,
+  gravity: -22,
   playerSpeed: 10,
   physicsSteps: 5,
 
@@ -34,7 +34,7 @@ let renderer,
   mixer,
   movkey = false;
 
-let environment, collider, visualizer, player, controls, capsuleInfo1;
+let environment, collider, visualizer, player, controls;
 let playerIsOnGround = false;
 
 
@@ -57,7 +57,7 @@ init();
 const loader0 = new GLTFLoader();
 loader0.load("./character.glb", (gltf) => {
   player = gltf.scene;
-  player.scale.set(0.03, 0.03, 0.03);
+  player.scale.set(0.01, 0.01, 0.01);
   // controls.target = player.position.clone().add(0,20,0);
 
   
@@ -90,10 +90,7 @@ loader0.load("./character.glb", (gltf) => {
     };
 
 });
-// let capsuleInfo1 = {
-//   radius: 0.5,
-//   segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -1.0, 0)),
-// };
+
 
 
 
@@ -158,7 +155,11 @@ function init() {
   const Light = new THREE.PointLight(0xff0000, 100);
   Light.rotation.y = 3;
   
-  
+  // if (params.firstPerson) {
+  //   camera.position.set(0, 10, 0); // Set a height above the player's head
+  // } else {
+  //   camera.position.set(10, 10, -10); // Set the default third-person view
+  // }
 
   // lil.gui
 
@@ -174,6 +175,8 @@ function init() {
       // player.capsuleInfo1.radius = 0.5;
     }
   });
+
+  
 
   const visFolder = gui.addFolder("Visualization");
   visFolder.add(params, "displayCollider");
@@ -456,26 +459,32 @@ function render() {
 
   const delta = Math.min(clock.getDelta(), 0.1);
   if (params.firstPerson) {
-    // controls.maxPolarAngle = Math.PI;
+    controls.maxPolarAngle = Math.PI;
 
-    // controls.minDistance = 2e-4;
-    // controls.maxDistance = 2e-4;
+    controls.minDistance = 1e-4;
+    controls.maxDistance = 1e-4;
     
-    player.visible = false;
-    controls.minDistance = 1;
-    controls.maxDistance = 3;
+    if(player){
+      player.visible = false;
+    }
+    // controls.minDistance = 1;
+    // controls.maxDistance = 2;
     // player.capsuleInfo1.radius = 3.0;
+
     
 
 
 
     
   } else {
+
     controls.maxPolarAngle = Math.PI / 2;
     controls.minDistance = 1;
     controls.maxDistance = 10;
-    player.visible = true;
+    if(player){
+      player.visible = true;
 
+    }
 
     
   }
@@ -498,6 +507,8 @@ function render() {
   if(mixer){
     mixer.update(delta)
   }
+
+
 
   // TODO: limit the camera movement based on the collider
   // raycast in direction of camera and move it if it's further than the closest point
