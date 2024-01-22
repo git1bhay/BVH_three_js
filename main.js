@@ -57,7 +57,7 @@ init();
 const loader0 = new GLTFLoader();
 loader0.load("./character.glb", (gltf) => {
   player = gltf.scene;
-  player.scale.set(0.01, 0.01, 0.01);
+  player.scale.set(0.03, 0.03, 0.03);
   // controls.target = player.position.clone().add(0,20,0);
 
   
@@ -274,7 +274,7 @@ function loadColliderEnviroment() {
     const gltfScene = res.scene;
 
     gltfScene.scale.setScalar(15);
-    gltfScene.position.set(-5.4, -0.5, 56.0);
+    gltfScene.position.set(-5.4, 0, 56.0);
 
     const box = new THREE.Box3();
     box.setFromObject(gltfScene);
@@ -305,7 +305,7 @@ function loadColliderEnviroment() {
 
 function reset() {
   playerVelocity.set(0, 0, 0);
-  player.position.set(-8.03, 1, 56.08);
+  player.position.set(-8.03, 1.29, 66.08);
 
   camera.position.sub(controls.target);
   controls.target.copy(player.position);
@@ -313,10 +313,10 @@ function reset() {
   controls.update();
 }
 
-if(player){
-  player.position.set(-8.03, 0, 56.08);
+// if(player){
+//   player.position.set(-8.03, 0, 56.08);
 
-}
+// }
 
 
 function updatePlayer(delta) {
@@ -380,7 +380,7 @@ function updatePlayer(delta) {
   // get the axis aligned bounding box of the capsule
   tempBox.expandByPoint(tempSegment.start);
   tempBox.expandByPoint(tempSegment.end);
-  // const box2 = new THREE.BoxHelper(,0xffffff);
+  // const box2 = new THREE.BoxHelper(0xffffff);
   // scene.add(box2)
 
   tempBox.min.addScalar(-capsuleInfo.radius);
