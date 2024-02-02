@@ -37,8 +37,6 @@ let renderer,
 let environment, collider, visualizer, player, controls;
 let playerIsOnGround = false;
 
-
-
 let fwdPressed = false,
   bkdPressed = false,
   lftPressed = false,
@@ -60,9 +58,6 @@ loader0.load("./character.glb", (gltf) => {
   player.scale.set(0.03, 0.03, 0.03);
   // controls.target = player.position.clone().add(0,20,0);
 
-  
-  
-
   mixer = new THREE.AnimationMixer(player);
   mixer
     .clipAction(
@@ -83,16 +78,15 @@ loader0.load("./character.glb", (gltf) => {
   scene.add(player);
 
   reset();
-  
+
   player.capsuleInfo1 = {
-      radius: 0.5,
-      segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, -2.0, 0)),
-    };
-
+    radius: 0.5,
+    segment: new THREE.Line3(
+      new THREE.Vector3(),
+      new THREE.Vector3(0, -2.0, 0)
+    ),
+  };
 });
-
-
-
 
 function init() {
   const bgColor = 0x263238 / 2;
@@ -145,7 +139,7 @@ function init() {
 
   clock = new THREE.Clock();
   controls = new OrbitControls(camera, renderer.domElement);
-  
+
   // state setup
   stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -154,7 +148,7 @@ function init() {
 
   const Light = new THREE.PointLight(0xff0000, 100);
   Light.rotation.y = 3;
-  
+
   // if (params.firstPerson) {
   //   camera.position.set(0, 10, 0); // Set a height above the player's head
   // } else {
@@ -175,8 +169,6 @@ function init() {
       // player.capsuleInfo1.radius = 0.5;
     }
   });
-
-  
 
   const visFolder = gui.addFolder("Visualization");
   visFolder.add(params, "displayCollider");
@@ -257,7 +249,25 @@ function init() {
 }
 
 function loadColliderEnviroment() {
-  const loader = new GLTFLoader();
+  const loadingManager = new THREE.LoadingManager();
+  // loadingManager.onStart = function(url,item,total){
+  //   console.log(`start loading ${url}`);
+  // }
+
+  const progressBar = document.getElementById("progress-bar");
+
+  loadingManager.onProgress = function (url, loaded, total) {
+    progressBar.value = (loaded / total) * 100;
+  };
+
+  const progressBarContainer = document.querySelector(
+    ".progress-bar-container"
+  );
+
+  loadingManager.onLoad = function () {
+    progressBarContainer.style.display = "none";
+  };
+  const loader = new GLTFLoader(loadingManager);
 
   const dracoloader = new DRACOLoader();
 
@@ -267,9 +277,6 @@ function loadColliderEnviroment() {
   dracoloader.setDecoderConfig({ type: "js" });
   loader.setDRACOLoader(dracoloader);
 
-
-
-
   loader.load("/city_scene_tokyo.glb", (res) => {
     const gltfScene = res.scene;
 
@@ -278,7 +285,7 @@ function loadColliderEnviroment() {
 
     const box = new THREE.Box3();
     box.setFromObject(gltfScene);
-    const box1 = new THREE.BoxHelper(gltfScene,0xffffff);
+    const box1 = new THREE.BoxHelper(gltfScene, 0xffffff);
     scene.add(box1);
     gltfScene.updateMatrixWorld(true);
 
@@ -318,9 +325,7 @@ function reset() {
 
 // }
 
-
 function updatePlayer(delta) {
-
   if (!player) {
     // Player object not loaded yet, return or handle accordingly
     return;
@@ -338,26 +343,25 @@ function updatePlayer(delta) {
   if (fwdPressed) {
     tempVector.set(0, 0, -1).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    movkey = true
-
+    movkey = true;
   }
 
   if (bkdPressed) {
     tempVector.set(0, 0, 1).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    movkey = true
+    movkey = true;
   }
 
   if (lftPressed) {
     tempVector.set(-1, 0, 0).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    movkey = true
+    movkey = true;
   }
 
   if (rgtPressed) {
     tempVector.set(1, 0, 0).applyAxisAngle(upVector, angle);
     player.position.addScaledVector(tempVector, params.playerSpeed * delta);
-    movkey = true
+    movkey = true;
   }
 
   if (movkey) {
@@ -388,7 +392,6 @@ function updatePlayer(delta) {
 
   collider.geometry.boundsTree.shapecast({
     intersectsBounds: (box) => box.intersectsBox(tempBox),
-    
 
     intersectsTriangle: (tri) => {
       // check if the triangle is intersecting the capsule and adjust the
@@ -463,34 +466,23 @@ function render() {
 
     controls.minDistance = 1e-4;
     controls.maxDistance = 1e-4;
-    
-    if(player){
+
+    if (player) {
       player.visible = false;
     }
     // controls.minDistance = 1;
     // controls.maxDistance = 2;
     // player.capsuleInfo1.radius = 3.0;
-
-    
-
-
-
-    
   } else {
-
     controls.maxPolarAngle = Math.PI / 2;
     controls.minDistance = 1;
     controls.maxDistance = 10;
-    if(player){
+    if (player) {
       player.visible = true;
-
     }
-
-    
   }
-  if(player){
-      player.rotation.set(0,controls.getAzimuthalAngle()+ Math.PI,0);
-
+  if (player) {
+    player.rotation.set(0, controls.getAzimuthalAngle() + Math.PI, 0);
   }
 
   if (collider) {
@@ -504,11 +496,9 @@ function render() {
     }
   }
   controls.update();
-  if(mixer){
-    mixer.update(delta)
+  if (mixer) {
+    mixer.update(delta);
   }
-
-
 
   // TODO: limit the camera movement based on the collider
   // raycast in direction of camera and move it if it's further than the closest point
