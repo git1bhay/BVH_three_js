@@ -7,3 +7,8 @@
 html,body{
   overflow: hidden;
 }
+#app{
+  position: absolute;
+  color: brown;
+  left: 10%;
+}
